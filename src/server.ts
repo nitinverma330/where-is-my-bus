@@ -8,7 +8,9 @@ import locationRoutes from './routes/locationRoutes';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+
+// Convert PORT to number properly
+const PORT: number = parseInt(process.env.PORT || '5000', 10);
 
 // Middleware
 app.use(cors({
@@ -22,11 +24,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', busRoutes);
 app.use('/api', locationRoutes);
 
-// Health check route
+// Health check route - IMPORTANT for Render
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'College Bus Tracker API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
-    message: 'Server is running',
+    message: 'Server is healthy',
     timestamp: new Date().toISOString()
   });
 });
@@ -37,7 +47,7 @@ mongoose.connect(process.env.MONGODB_URI!)
     console.log('✅ Connected to MongoDB');
     
     try {
-      // Create 2dsphere index for stops - using async/await instead of callback
+      // Create 2dsphere index for stops
       const db = mongoose.connection.db;
       if (db) {
         const collection = db.collection('stops');
@@ -48,8 +58,11 @@ mongoose.connect(process.env.MONGODB_URI!)
       console.error('Error creating index:', error);
     }
 
-    app.listen(PORT, () => {
+    // Start server - LISTEN ON ALL INTERFACES
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`📡 API available at http://localhost:${PORT}/api`);
     });
   })
   .catch((error) => {

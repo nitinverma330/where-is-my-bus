@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: college-bus-backend
+    runtime: node
+    repo: https://github.com/nitinverma330/where-is-my-bus
+    plan: free
+    branch: main
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: PORT
+        value: 5000
